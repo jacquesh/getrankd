@@ -1,0 +1,12 @@
+# Vim
+*.swp
+*.swo
+
+# Executables
+*.exe
+
+# SQLite files
+*.db*
+
+# Import data
+*.csv

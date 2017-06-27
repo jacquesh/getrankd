@@ -1,0 +1,190 @@
+<html>
+<head>
+  <style>
+    canvas{
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+    }
+    .chartjs-tooltip {
+      opacity: 1;
+      position: absolute;
+      background: rgba(0, 0, 0, .7);
+      color: white;
+      border-radius: 3px;
+      -webkit-transition: all .1s ease;
+      transition: all .1s ease;
+      pointer-events: none;
+      -webkit-transform: translate(-50%, 0);
+      transform: translate(-50%, 0);
+      padding: 4px;
+    }
+    .chartjs-tooltip-key {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+    }
+  </style>
+  <title>GetRankd</title>
+</head>
+<body>
+  GetRankd!
+  <br/>
+  <canvas id="rankChart" width="400" height="400"></canvas>
+  <br/>
+  <input type="button" onclick="location.href='/newgame';" value="New Game" />
+  <input type="button" onclick="location.href='/newplayer';" value="New Player" />
+  <input type="button" onclick="location.href='/newmatch';" value="New Match" />
+  <br/>
+  <table>
+    <tr>
+      <th>Name</th>
+      <th>Score</th>
+    </tr>
+    {{ range .Players }}
+      <tr>
+        <td>{{ .Name }}</td>
+        <td>{{ printf "%.2f" .Score }}</td>
+      </tr>
+    {{ end }}
+  </table>
+
+  <table>
+    <tr>
+      <th>Name</th>
+      <th>Timestamp</th>
+    </tr>
+    {{ range .Matches }}
+      <tr>
+        <td>{{ .Name }}</td>
+        <td>{{ .Timestamp.Format "2006-01-02 15:04" }}</td>
+      </tr>
+    {{ end }}
+  </table>
+
+  <div id="canvas-holder1" style="width:75%;">
+    <canvas id="chart1"></canvas>
+    <div class="chartjs-tooltip" id="tooltip-0"></div>
+    <div class="chartjs-tooltip" id="tooltip-1"></div>
+  </div>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+  <script>
+    // These colours come from http://ksrowell.com/blog-visualizing-data/2012/02/02/optimal-colors-for-graphs/
+    var lineColours = [
+      'rgba(57,106,177,255)',
+      'rgba(218,124,48,255)',
+      'rgba(62,150,81,255)',
+      'rgba(204,37,41,255)',
+      'rgba(83,81,84,255)',
+      'rgba(107,76,154,255)',
+      'rgba(146,36,40,255)',
+      'rgba(148,139,61,255)'
+    ];
+    var fillColours = [
+      'rgba(114,147,203,255)',
+      'rgba(225,151,76,255)',
+      'rgba(132,186,91,255)',
+      'rgba(211,94,96,255)',
+      'rgba(128,133,133,255)',
+      'rgba(144,103,167,255)',
+      'rgba(171,104,87,255)',
+      'rgba(204,194,16,255)'
+    ];
+
+    // TODO: Tooltips as at http://www.chartjs.org/samples/latest/charts/line/basic.html
+    var renderCustomTooltip = function (tooltip) {
+      $(this._chart.canvas).css("cursor", "pointer");
+      var positionY = this._chart.canvas.offsetTop;
+      var positionX = this._chart.canvas.offsetLeft;
+      $(".chartjs-tooltip").css({
+        opacity: 0,
+      });
+      if (!tooltip || !tooltip.opacity) {
+        return;
+      }
+      if (tooltip.dataPoints.length > 0) {
+        tooltip.dataPoints.forEach(function (dataPoint) {
+          var content = [dataPoint.xLabel, dataPoint.yLabel].join(": ");
+          var $tooltip = $("#tooltip-" + dataPoint.datasetIndex);
+          $tooltip.html(content);
+          $tooltip.css({
+            opacity: 1,
+            top: positionY + dataPoint.y + "px",
+            left: positionX + dataPoint.x + "px",
+          });
+        });
+      }
+    };
+
+    function createChart(data) {
+      var jds = [];
+      for(var i=0; i<data.length; i++) {
+        var datapoints = [];
+        for(var j=0; j<data[i].Ratings.length; j++) {
+          datapoints.push({
+            x: moment(data[i].Ratings[j].Timestamp),
+            y: data[i].Ratings[j].Rating
+          });
+        }
+        jds.push({
+          label: data[i].Name,
+          data: datapoints,
+          fill: false,
+          backgroundColor: fillColours[i],
+          borderColor: lineColours[i]
+        });
+      }
+
+      var ctx = document.getElementById('rankChart').getContext('2d')
+      var rankChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          datasets: jds,
+        },
+        options: {
+          responsive: false,
+          tooltips: {
+            enabled: false,
+            mode: 'x',
+            position: 'nearest',
+            intersect: false,
+            custom: renderCustomTooltip
+          },
+          scales: {
+            xAxes: [{
+              type: 'time',
+              time: {
+                displayFormats: {
+                  'millisecond': 'HH:mm:ss',
+                  'second': 'HH:mm:ss',
+                  'minute': 'HH:mm',
+                  'hour': 'HH:mm',
+                  'day': 'YYYY-MM-DD',
+                  'week': 'YYYY-MM-DD',
+                  'month': 'YYYY-MM-DD',
+                  'quarter': 'YYYY-MM-DD',
+                  'year': 'YYYY-MM-DD',
+                }
+              }
+            }],
+          }
+        }
+      });
+    }
+
+    $.get('/api/v1/get-rank-chart-data')
+      .done(function(data) {
+        createChart(data);
+      })
+      .fail(function(data) {
+        console.log('Failure', data);
+      });
+  </script>
+</body>
+</html>
+
+

@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>GetRankd - Add a match</title>
+</head>
+
+<body>
+  <form action="/api/v1/addmatch" method="post">
+    <label for="gameId">Game Name:</label>
+    <select name="gameId">
+      <option value="" selected disabled style="display:none;">Select a game</option>
+      {{ range .Games }}
+        <option value="{{.Id}}">{{.Name}}</option>
+      {{ end }}
+    </select>
+
+    <table id="playerTable">
+      <tr>
+        <th>Position</th>
+        <th>Player</th>
+      </tr>
+      <tr class="playerInputRow">
+        <td>
+          <select class="positionInput" name="playerPosition" disabled>
+            <option value="1">1</option>
+          </select>
+        </td>
+        <td>
+          <select name="playerId" onchange="playerSelected(this)">
+            <option value="" selected disabled style="display:none;">Select a player</option>
+            {{ range .Players }}
+              <option value="{{.Id}}">{{.Name}}</option>
+            {{ end }}
+          </select>
+        </td>
+      </tr>
+    </table>
+    <br/>
+    <button type="submit">Submit</button>
+  </form>
+
+  <script>
+    var $blankInputRow = document.getElementsByClassName('playerInputRow')[0].cloneNode(true);
+
+    function playerSelected(selector) {
+      // Ignore the change if it isn't the last item in the list
+      var positionInputs = document.getElementsByClassName('positionInput');
+      if(selector.parentElement.parentElement.rowIndex !== positionInputs.length) {
+        return;
+      }
+
+      var positionSelect = selector.parentElement.parentElement.firstElementChild.firstElementChild;
+      positionSelect.disabled = false;
+
+      // Add the newly available position to all position selectors
+      var newPositionValue = positionInputs.length+1;
+      for(var i=0; i<positionInputs.length; i++) {
+        var newOption = document.createElement("option");
+        newOption.value = newPositionValue;
+        newOption.text = newPositionValue;
+        positionInputs[i].appendChild(newOption);
+      }
+
+      // Add a new row to the table
+      var newRow = $blankInputRow.cloneNode(true);
+      var newRowSelect = newRow.firstElementChild.firstElementChild;
+      for(var i=2; i<=newPositionValue; i++) {
+        var newOption = document.createElement("option");
+        newOption.value = i;
+        newOption.text = i;
+        newRowSelect.appendChild(newOption);
+      }
+      newRowSelect.selectedIndex = newPositionValue-1;
+      document.getElementById('playerTable').appendChild(newRow);
+
+    }
+  </script>
+</body>
+</html>
+
