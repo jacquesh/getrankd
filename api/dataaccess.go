@@ -237,11 +237,6 @@ func Initialize() {
 		if err != nil {
 			panic(err)
 		}
-
-		PersistNewPlayer("jacques")
-		PersistNewPlayer("calvin")
-		PersistNewPlayer("daniel")
-		PersistNewPlayer("jethro")
 	}
 }
 
