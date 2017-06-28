@@ -102,6 +102,8 @@ func getRatingHistory() []PlayerHistory {
 		FROM
 			Match INNER JOIN PlayerMatch
 			ON PlayerMatch.MatchId = Match.Id
+		WHERE
+			Match.Id >= (SELECT MAX(Id-20) FROM Match)
 		ORDER BY
 			Match.Timestamp ASC`)
 	if err != nil {
