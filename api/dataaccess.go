@@ -27,6 +27,7 @@ type PlayerData struct {
 }
 
 type HistoryEntry struct {
+	MatchId   int64
 	Timestamp time.Time
 	Rating    float64
 }
@@ -94,6 +95,7 @@ func getRatingHistory() []PlayerHistory {
 
 	rows, err = db.Query(`
 		SELECT
+			Match.Id,
 			PlayerMatch.PlayerId,
 			PlayerMatch.NewElo,
 			Match.Timestamp
@@ -107,13 +109,15 @@ func getRatingHistory() []PlayerHistory {
 	}
 
 	playerHistories := make(map[int64][]HistoryEntry)
+	var matchId int64
 	var playerId int64
 	var playerElo float64
 	var timestamp time.Time
 	for rows.Next() {
-		rows.Scan(&playerId, &playerElo, &timestamp)
+		rows.Scan(&matchId, &playerId, &playerElo, &timestamp)
 
 		newHistoryEntry := HistoryEntry{
+			MatchId:   matchId,
 			Timestamp: timestamp,
 			Rating:    playerElo,
 		}

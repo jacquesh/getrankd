@@ -30,7 +30,7 @@
 <body>
   GetRankd!
   <br/>
-  <canvas id="rankChart" width="400" height="400"></canvas>
+  <canvas id="rankChart" width="600" height="600"></canvas>
   <br/>
   <input type="button" onclick="location.href='/newgame';" value="New Game" />
   <input type="button" onclick="location.href='/newplayer';" value="New Player" />
@@ -70,7 +70,6 @@
 
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
   <script>
     // These colours come from http://ksrowell.com/blog-visualizing-data/2012/02/02/optimal-colors-for-graphs/
@@ -126,7 +125,7 @@
         var datapoints = [];
         for(var j=0; j<data[i].Ratings.length; j++) {
           datapoints.push({
-            x: moment(data[i].Ratings[j].Timestamp),
+            x: data[i].Ratings[j].MatchId,
             y: data[i].Ratings[j].Rating
           });
         }
@@ -156,20 +155,7 @@
           },
           scales: {
             xAxes: [{
-              type: 'time',
-              time: {
-                displayFormats: {
-                  'millisecond': 'HH:mm:ss',
-                  'second': 'HH:mm:ss',
-                  'minute': 'HH:mm',
-                  'hour': 'HH:mm',
-                  'day': 'YYYY-MM-DD',
-                  'week': 'YYYY-MM-DD',
-                  'month': 'YYYY-MM-DD',
-                  'quarter': 'YYYY-MM-DD',
-                  'year': 'YYYY-MM-DD',
-                }
-              }
+              type: 'linear',
             }],
           }
         }
