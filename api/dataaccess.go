@@ -45,15 +45,16 @@ var db *sql.DB
 
 func GetRecentMatches() []MatchData {
 	cmd := `
-        SELECT
-            Game.Name,
-            Match.Timestamp
-        FROM
-            Match
-            INNER JOIN Game
-            ON Game.Id = Match.GameId
-        ORDER BY
-            Timestamp DESC LIMIT 10`
+		SELECT
+			Game.Name,
+			Match.Timestamp
+		FROM
+			Match
+			INNER JOIN Game
+			ON Game.Id = Match.GameId
+		ORDER BY
+			Timestamp DESC
+		LIMIT 10`
 	rows, err := db.Query(cmd)
 	if err != nil {
 		panic(err)
@@ -92,15 +93,15 @@ func getRatingHistory() []PlayerHistory {
 	rows.Close()
 
 	rows, err = db.Query(`
-        SELECT
-            PlayerMatch.PlayerId,
-            PlayerMatch.NewElo,
-            Match.Timestamp
-        FROM
-            Match INNER JOIN PlayerMatch
-            ON PlayerMatch.MatchId = Match.Id
-        ORDER BY
-            Match.Timestamp ASC`)
+		SELECT
+			PlayerMatch.PlayerId,
+			PlayerMatch.NewElo,
+			Match.Timestamp
+		FROM
+			Match INNER JOIN PlayerMatch
+			ON PlayerMatch.MatchId = Match.Id
+		ORDER BY
+			Match.Timestamp ASC`)
 	if err != nil {
 		panic(err)
 	}
@@ -209,26 +210,26 @@ func Initialize() {
 		_, err = db.Exec("PRAGMA synchronous = NORMAL")
 		_, err = db.Exec("PRAGMA journal_mode = WAL")
 		_, err = db.Exec(`
-            CREATE TABLE Game (
-                Id      INTEGER PRIMARY KEY NOT NULL,
-                Name    TEXT NOT NULL
-            );
-            CREATE TABLE Player (
-                Id      INTEGER PRIMARY KEY NOT NULL,
-                Name    TEXT NOT NULL,
-                Elo     FLOAT NOT NULL DEFAULT(1500)
-            );
-            CREATE TABLE Match (
-                Id          INTEGER PRIMARY KEY NOT NULL,
-                GameId      INT NOT NULL,
-                Timestamp   DATETIME NOT NULL
-            );
-            CREATE TABLE PlayerMatch (
-                PlayerId    INT NOT NULL,
-                MatchId     INT NOT NULL,
-                EloDelta    FLOAT NOT NULL,
-                NewElo      FLOAT NOT NULL
-            );`)
+			CREATE TABLE Game (
+				Id      INTEGER PRIMARY KEY NOT NULL,
+				Name    TEXT NOT NULL
+			);
+			CREATE TABLE Player (
+				Id      INTEGER PRIMARY KEY NOT NULL,
+				Name    TEXT NOT NULL,
+				Elo     FLOAT NOT NULL DEFAULT(1500)
+			);
+			CREATE TABLE Match (
+				Id          INTEGER PRIMARY KEY NOT NULL,
+				GameId      INT NOT NULL,
+				Timestamp   DATETIME NOT NULL
+			);
+			CREATE TABLE PlayerMatch (
+				PlayerId    INT NOT NULL,
+				MatchId     INT NOT NULL,
+				EloDelta    FLOAT NOT NULL,
+				NewElo      FLOAT NOT NULL
+			);`)
 		if err != nil {
 			panic(err)
 		}
