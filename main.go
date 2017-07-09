@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"text/template"
@@ -29,7 +28,7 @@ func renderHomePage(write http.ResponseWriter, req *http.Request) {
 	}
 	err = tmplt.ExecuteTemplate(write, "home.html", data)
 	if err != nil {
-		fmt.Printf("ERROR: %s\n", err)
+		log.Printf("ERROR: %s\n", err)
 		write.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -52,7 +51,7 @@ func renderNewMatchPage(write http.ResponseWriter, req *http.Request) {
 	data.Players = api.GetAllPlayerData()
 	err = tmplt.ExecuteTemplate(write, "addmatch.html", data)
 	if err != nil {
-		fmt.Printf("ERROR: %s\n", err)
+		log.Printf("ERROR: %s\n", err)
 		write.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -70,7 +69,7 @@ func renderNewPlayerPage(write http.ResponseWriter, req *http.Request) {
 	data := AddPlayerPageData{}
 	err = tmplt.ExecuteTemplate(write, "addplayer.html", data)
 	if err != nil {
-		fmt.Printf("ERROR: %s\n", err)
+		log.Printf("ERROR: %s\n", err)
 		write.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -88,7 +87,7 @@ func renderNewGamePage(write http.ResponseWriter, req *http.Request) {
 	data := AddGamePageData{}
 	err = tmplt.ExecuteTemplate(write, "addgame.html", data)
 	if err != nil {
-		fmt.Printf("ERROR: %s\n", err)
+		log.Printf("ERROR: %s\n", err)
 		write.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -99,8 +98,7 @@ type HttpRequestHandler struct {
 }
 
 func (reqHandler *HttpRequestHandler) ServeHTTP(write http.ResponseWriter, req *http.Request) {
-	fmt.Println("REQUEST!")
-	fmt.Printf("%s\n", req.URL.Path)
+	log.Printf("[%s] src=%s dest=%s", req.Method, req.RemoteAddr, req.URL.Path)
 	handlerFunc, ok := reqHandler.mux[req.URL.Path]
 	if ok {
 		handlerFunc(write, req)
@@ -111,6 +109,7 @@ func (reqHandler *HttpRequestHandler) ServeHTTP(write http.ResponseWriter, req *
 }
 
 func main() {
+	log.Print("Setting up web server...")
 	handler := HttpRequestHandler{}
 	handler.mux = make(map[string]func(http.ResponseWriter, *http.Request))
 	handler.mux["/"] = renderHomePage
@@ -128,6 +127,8 @@ func main() {
 		Handler: &handler,
 	}
 
+	log.Print("Initializing API...")
 	api.Initialize()
+	log.Print("Running web server...")
 	log.Fatal(server.ListenAndServe())
 }
