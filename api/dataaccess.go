@@ -205,7 +205,6 @@ func getRatingMap() map[int64]float64 {
 }
 
 func Initialize() {
-	os.Remove("./ratings.db")
 	var err error
 	db, err = sql.Open("sqlite3", "./ratings.db")
 	if err != nil {

@@ -129,7 +129,5 @@ func main() {
 	}
 
 	api.Initialize()
-	//importFromCsv("./rankade_test.csv")
-	importFromCsv("./rankade_CalvinBrizzi539230_matches_2017-06-24_1498302902.csv")
 	log.Fatal(server.ListenAndServe())
 }
