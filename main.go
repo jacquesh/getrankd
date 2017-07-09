@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"text/template"
+	"time"
 
 	"./api"
 )
@@ -123,8 +124,10 @@ func main() {
 	handler.mux["/api/v1/addplayer"] = api.AddPlayer
 
 	server := http.Server{
-		Addr:    ":8000",
-		Handler: &handler,
+		Addr:         ":8000",
+		Handler:      &handler,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	log.Print("Initializing API...")
