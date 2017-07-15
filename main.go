@@ -6,7 +6,7 @@ import (
 	"text/template"
 	"time"
 
-	"./api"
+	"getrankd/api"
 )
 
 // Decent reading: https://astaxie.gitbooks.io/build-web-application-with-golang/en/05.3.html
@@ -132,6 +132,6 @@ func main() {
 
 	log.Print("Initializing API...")
 	api.Initialize()
-	log.Print("Running web server...")
+	log.Printf("Running web server at: http://127.0.0.1%s ...", server.Addr)
 	log.Fatal(server.ListenAndServe())
 }

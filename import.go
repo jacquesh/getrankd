@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"./api"
+	"src/getrankd/api"
 )
 
 type ImportPlayerResult struct {
