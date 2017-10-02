@@ -124,7 +124,7 @@ func main() {
 	handler.mux["/api/v1/addplayer"] = api.AddPlayer
 
 	server := http.Server{
-		Addr:         ":8000",
+		Addr:         "0.0.0.0:8000",
 		Handler:      &handler,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -132,6 +132,6 @@ func main() {
 
 	log.Print("Initializing API...")
 	api.Initialize()
-	log.Printf("Running web server at: http://127.0.0.1%s ...", server.Addr)
+	log.Printf("Running web server at: http://%s ...", server.Addr)
 	log.Fatal(server.ListenAndServe())
 }
