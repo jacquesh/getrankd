@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"text/template"
 	"time"
 
@@ -109,8 +112,16 @@ func (reqHandler *HttpRequestHandler) ServeHTTP(write http.ResponseWriter, req *
 	write.WriteHeader(http.StatusNotFound)
 }
 
+func runServer(server http.Server) {
+	log.Printf("Running web server at: http://%s ...", server.Addr)
+	log.Fatal(server.ListenAndServe())
+}
+
 func main() {
 	log.Print("Setting up web server...")
+	signalChannel := make(chan os.Signal)
+	signal.Notify(signalChannel, os.Interrupt)
+
 	handler := HttpRequestHandler{}
 	handler.mux = make(map[string]func(http.ResponseWriter, *http.Request))
 	handler.mux["/"] = renderHomePage
@@ -132,6 +143,14 @@ func main() {
 
 	log.Print("Initializing API...")
 	api.Initialize()
-	log.Printf("Running web server at: http://%s ...", server.Addr)
-	log.Fatal(server.ListenAndServe())
+
+	go runServer(server)
+
+	<-signalChannel
+
+	log.Print("Shutting down...")
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	server.Shutdown(ctx)
+	api.Deinitialize()
+	log.Print("Shutdown complete")
 }

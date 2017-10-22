@@ -241,6 +241,13 @@ func Initialize() {
 	}
 }
 
+func Deinitialize() {
+	err := db.Close()
+	if err != nil {
+		panic(err)
+	}
+}
+
 func PersistNewGame(name string) int64 {
 	fmt.Printf("Persist new game #%s#\n", name)
 	result, err := db.Exec("INSERT INTO Game(Name) VALUES(?1)", name)
