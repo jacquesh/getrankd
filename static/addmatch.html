@@ -1,17 +1,27 @@
 <html>
 <head>
   <title>GetRankd - Add a match</title>
+  <style>
+    .validationWarning {
+      visibility: hidden;
+      display: inline;
+      color: #ff0000;
+    }
+  </style>
 </head>
 
 <body>
-  <form action="/api/v1/addmatch" method="post">
+  <form action="/api/v1/addmatch" id="newMatchForm" method="post" onsubmit="return validate();">
     <label for="gameId">Game Name:</label>
     <select name="gameId">
-      <option value="" selected disabled style="display:none;">Select a game</option>
+      <option value="-1" selected disabled style="display:none;">Select a game</option>
       {{ range .Games }}
         <option value="{{.Id}}">{{.Name}}</option>
       {{ end }}
     </select>
+    <div id="gameError" class="validationWarning">
+      Please select a game.
+    </div>
 
     <table id="playerTable">
       <tr>
@@ -26,11 +36,14 @@
         </td>
         <td>
           <select name="playerId" onchange="playerSelected(this)">
-            <option value="" selected disabled style="display:none;">Select a player</option>
+            <option value="-1" selected disabled style="display:none;">Select a player</option>
             {{ range .Players }}
               <option value="{{.Id}}">{{.Name}}</option>
             {{ end }}
           </select>
+          <div name="playerError" class="validationWarning">
+            Please select at least one player.
+          </div>
         </td>
       </tr>
     </table>
@@ -72,6 +85,28 @@
       newRowSelect.selectedIndex = newPositionValue-1;
       document.getElementById('playerTable').appendChild(newRow);
 
+    }
+    function validate() {
+      var result = true;
+      var form = document.getElementById("newMatchForm");
+      var gameId = form.elements["gameId"].value;
+      var gameErrorDiv = document.getElementById("gameError");
+      if(gameId == -1) {
+        gameErrorDiv.style.visibility = "visible";
+        result = false;
+      } else {
+        gameErrorDiv.style.visibility = "hidden";
+      }
+
+      var firstPlayerId = form.elements["playerId"][0].value;
+      var playerErrorDiv = form.querySelector("[name=playerError]");
+      if(firstPlayerId == -1) {
+        playerErrorDiv.style.visibility = "visible";
+        result = false;
+      } else {
+        playerErrorDiv.style.visibility = "hidden";
+      }
+      return result;
     }
   </script>
 </body>

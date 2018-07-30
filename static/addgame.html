@@ -1,15 +1,36 @@
 <html>
 <head>
   <title>GetRankd - Add a game</title>
+  <style>
+    .validationWarning {
+      visibility: hidden;
+      display: inline;
+      color: #ff0000;
+    }
+  </style>
 </head>
 
 <body>
-  <form action="/api/v1/addgame" method="post">
+  <form action="/api/v1/addgame" id="newGameForm" method="post" onsubmit="return validate();">
     <label for="gameName">Game name:</label>
-    <input type="text" id="gameName" name="gameName" />
+    <input type="text" name="gameName" />
+    <div id="gameNameError" class="validationWarning">
+      Please specify a game name.
+    </div>
     <br/>
     <button type="submit">Submit</button>
   </form>
+  <script>
+    function validate() {
+      var name = document.getElementById("newGameForm").elements["gameName"].value;
+      if(name.length == 0) {
+        var errorDiv = document.getElementById("gameNameError");
+        errorDiv.style.visibility = "visible";
+        return false;
+      }
+      return true;
+    }
+  </script>
 </body>
 </html>
 
